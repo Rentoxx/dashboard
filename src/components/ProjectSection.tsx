@@ -1,8 +1,8 @@
 export const ProjectSection = () => {
     return (
         // Füge die Klassen hier hinzu:
-        <section className="w-full max-w-5xl mx-auto my-16 p-8 sm:p-12 border border-dark-subtle/30 bg-dark-surface/50 backdrop-blur-lg rounded-2xl">
-            <h2 className="text-4xl font-bold text-center text-mint">
+        <section className="w-full max-w-5xl mx-auto my-16 p-8 sm:p-12 border border-dark-subtle/30 bg-dark-surface/50">
+        <h2 className="text-4xl font-bold text-center text-mint">
                 Die Mission
             </h2>
             <div className="mt-12 grid md:grid-cols-2 gap-12 items-center">

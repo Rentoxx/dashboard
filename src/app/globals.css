@@ -45,7 +45,7 @@
   /* === DEINE ERWEITERUNGEN START === */
 
   /* Angepasste Custom Shadows (subtiler) */
-  --shadow-glow-online: 0 0 15px 4px rgba(52, 211, 153, 0.6);
+  --shadow-glow-online: 0 0 8px 2px rgba(52, 211, 153, 0.5);
   --shadow-glow-offline: 0 0 15px 4px rgba(239, 68, 68, 0.6);
   --shadow-progress-mint: 0 0 10px 2px rgba(52, 211, 153, 0.5);
   --shadow-progress-blue: 0 0 10px 2px rgba(96, 165, 250, 0.5);
@@ -64,7 +64,7 @@
 }
 
 :root {
-  --radius: 0.625rem;
+  --radius: 0rem;
   --background: oklch(1 0 0);
   --foreground: oklch(0.129 0.042 264.695);
   --card: oklch(1 0 0);
