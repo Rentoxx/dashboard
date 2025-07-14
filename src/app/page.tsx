@@ -1,9 +1,11 @@
 "use client";
 
-import { LogIn, Rocket } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { useEffect } from "react";
 import { ProjectSection } from "@/components/ProjectSection";
 import { TechStackSection } from "@/components/TechStackSection";
+import Link from "next/link";
+import {AuthButton} from "@/components/AuthButton";
 
 export default function LandingPage() {
   useEffect(() => {
@@ -45,7 +47,7 @@ export default function LandingPage() {
 
         {/* 3. Alle Inhalts-Sektionen liegen jetzt ÜBER dem fixierten Hintergrund */}
         <div className="relative z-10">
-          <section className="flex min-h-screen w-full flex-col items-center justify-center overflow-hidden p-8">
+          <section className="flex min-h-[calc(100vh-7rem)] w-full flex-col items-center justify-center overflow-hidden p-8">
             <div className="flex flex-col items-center text-center">
               <h1 className="text-5xl font-bold tracking-tight text-white md:text-7xl">
                 Willkommen in meinem digitalen Maschinenraum.
@@ -55,8 +57,14 @@ export default function LandingPage() {
                 selbst gehosteten Dienste – vom Game-Server bis zur Cloud-Infrastruktur.
               </p>
               <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
-                <a href="/login" className="flex items-center justify-center gap-2 rounded-md bg-mint px-6 py-3 font-semibold text-dark-background shadow-lg transition-transform hover:scale-105 hover:bg-mint-dark focus:outline-none focus:ring-2 focus:ring-mint-light focus:ring-offset-2 focus:ring-offset-dark-background"><LogIn size={20} /><span>Login</span></a>
-                <a href="/dashboard" className="flex items-center justify-center gap-2 rounded-md border border-dark-subtle bg-dark-surface/50 px-6 py-3 font-semibold text-dark-text shadow-lg backdrop-blur-sm transition-transform hover:scale-105 hover:border-mint focus:outline-none focus:ring-2 focus:ring-mint-light focus:ring-offset-2 focus:ring-offset-dark-background"><Rocket size={20} /><span>Demo ansehen</span></a>
+                {/* Der alte Login-Button wird entfernt, die Demo bleibt */}
+                <Link
+                    href="/dashboard"
+                    className="flex items-center justify-center gap-2 rounded-md border border-dark-subtle bg-dark-surface/50 px-6 py-3 font-semibold text-dark-text shadow-lg backdrop-blur-sm transition-transform hover:scale-105 hover:border-mint focus:outline-none focus:ring-2 focus:ring-mint-light focus:ring-offset-2 focus:ring-offset-dark-background"
+                >
+                  <Rocket size={20} />
+                  <span>Demo ansehen</span>
+                </Link>
               </div>
             </div>
           </section>
