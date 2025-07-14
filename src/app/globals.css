@@ -44,23 +44,23 @@
 
   /* === DEINE ERWEITERUNGEN START === */
 
-  /* Custom Shadows */
-  --shadow-glow-online: 0 0 30px 10px rgba(52, 211, 153, 0.7);
-  --shadow-glow-offline: 0 0 30px 10px rgba(239, 68, 68, 0.7);
-  --shadow-progress-mint: 0 0 20px 8px rgba(52, 211, 153, 0.6);
-  --shadow-progress-blue: 0 0 20px 8px rgba(96, 165, 250, 0.6);
-  --shadow-progress-amber: 0 0 20px 8px rgba(251, 191, 36, 0.6);
+  /* Angepasste Custom Shadows (subtiler) */
+  --shadow-glow-online: 0 0 15px 4px rgba(52, 211, 153, 0.6);
+  --shadow-glow-offline: 0 0 15px 4px rgba(239, 68, 68, 0.6);
+  --shadow-progress-mint: 0 0 10px 2px rgba(52, 211, 153, 0.5);
+  --shadow-progress-blue: 0 0 10px 2px rgba(96, 165, 250, 0.5);
+  --shadow-progress-amber: 0 0 10px 2px rgba(251, 191, 36, 0.5);
 
-  /* Custom Colors (damit du sie auch mit bg-mint, etc. verwenden kannst) */
+  /* Custom Colors */
   --color-mint: #34D399;
   --color-mint-light: #6EE7B7;
   --color-mint-dark: #10B981;
-  --color-dark-background: #111827;
-  --color-dark-surface: #1F2937;
-  --color-dark-text: #F9FAFB;
-  --color-dark-subtle: #4B5563;
 
-  /* === DEINE ERWEITERUNGEN ENDE === */
+  /* NEU: Neutrale Grautöne ohne Blaustich */
+  --color-dark-background: #18181b; /* Neutrales Dunkelgrau (wie Zinc 900) */
+  --color-dark-surface: #27272a;    /* Etwas helleres Grau für Karten (wie Zinc 800) */
+  --color-dark-text: #fafafa;       /* Klares Weiß für Texte (wie Zinc 50) */
+  --color-dark-subtle: #52525b;
 }
 
 :root {
@@ -99,24 +99,44 @@
 }
 
 .dark {
-  --background: oklch(0.129 0.042 264.695);
-  --foreground: oklch(0.984 0.003 247.858);
-  --card: oklch(0.208 0.042 265.755);
-  --card-foreground: oklch(0.984 0.003 247.858);
-  --popover: oklch(0.208 0.042 265.755);
-  --popover-foreground: oklch(0.984 0.003 247.858);
-  --primary: oklch(0.929 0.013 255.508);
-  --primary-foreground: oklch(0.208 0.042 265.755);
-  --secondary: oklch(0.279 0.041 260.031);
-  --secondary-foreground: oklch(0.984 0.003 247.858);
-  --muted: oklch(0.279 0.041 260.031);
-  --muted-foreground: oklch(0.704 0.04 256.788);
-  --accent: oklch(0.279 0.041 260.031);
-  --accent-foreground: oklch(0.984 0.003 247.858);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.551 0.027 264.364);
+  /* Haupt-Hintergrund auf dein neutrales Grau setzen */
+  --background: var(--color-dark-background);
+  --foreground: var(--color-dark-text);
+
+  /* Karten & Popover erhalten die 'surface'-Farbe */
+  --card: var(--color-dark-surface);
+  --card-foreground: var(--color-dark-text);
+  --popover: var(--color-dark-surface);
+  --popover-foreground: var(--color-dark-text);
+
+  /* Primär-Akzentfarbe ist dein Mint */
+  --primary: var(--color-mint);
+  --primary-foreground: var(--color-dark-background); /* Dunkler Text für Mint-Buttons */
+
+  /* Sekundäre Elemente */
+  --secondary: var(--color-dark-surface);
+  --secondary-foreground: var(--color-dark-text);
+
+  /* Gedämpfte (muted) Elemente */
+  --muted: var(--color-dark-surface);
+  --muted-foreground: var(--color-dark-subtle);
+
+  /* Akzent-Elemente */
+  --accent: var(--color-dark-surface);
+  --accent-foreground: var(--color-dark-text);
+
+  /* Rahmen & Eingabefelder */
+  --border: var(--color-dark-subtle);
+  --input: var(--color-dark-subtle);
+
+  /* Ring-Farbe (z.B. für Fokus) auf Mint setzen */
+  --ring: var(--color-mint);
+
+  /* Fehler-Farbe (kann Standard bleiben) */
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 210 40% 98%;
+
+  /* --- Die restlichen Variablen sind für deine Diagramme etc. und können bleiben --- */
   --chart-1: oklch(0.488 0.243 264.376);
   --chart-2: oklch(0.696 0.17 162.48);
   --chart-3: oklch(0.769 0.188 70.08);

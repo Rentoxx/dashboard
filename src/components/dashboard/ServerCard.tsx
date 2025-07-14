@@ -25,10 +25,10 @@ export const ServerCard = ({ server }: ServerCardProps) => {
 
     return (
         <Link href={`/dashboard/${server.id}`}>
-            <Card className="bg-dark-surface border-dark-subtle text-white hover:border-mint transition-colors duration-200 cursor-pointer shadow-indigo-500/50 shadow-2xl">
+            <Card className="bg-dark-surface border-dark-subtle text-white hover:border-mint transition-colors duration-200 cursor-pointer">
                 <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                        <span className="shadow-indigo-500/50 shadow-2xl">{server.name}</span>
+                        <span>{server.name}</span>
                         <div className={`flex items-center gap-2 text-sm font-medium ${isOnline ? 'text-mint' : 'text-red-500'}`}>
                             <div
                                 className={`h-3 w-3 rounded-full shadow-2xl ${statusBgClass} ${isOnline ? 'shadow-glow-online' : 'shadow-glow-offline'}`}
@@ -41,7 +41,7 @@ export const ServerCard = ({ server }: ServerCardProps) => {
                 <CardContent className="space-y-4">
                     {/* CPU-Auslastung */}
                     <div className="space-y-1">
-                        <div className="flex justify-between text-sm text-gray-300 shadow-indigo-500/50 shadow-2xl">
+                        <div className="flex justify-between text-sm text-gray-300 ">
                             <span>CPU</span>
                             <span>{server.cpuUsage}%</span>
                         </div>

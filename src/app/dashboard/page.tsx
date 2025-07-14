@@ -37,14 +37,13 @@ export default function DashboardOverviewPage() {
     return (
         <div className="min-h-screen w-full bg-dark-background p-8">
             <header className="mb-8">
-                <h1 className="text-3xl font-bold text-white shadow-indigo-500/50 shadow-2xl">Serverübersicht</h1>
+                <h1 className="text-3xl font-bold text-white">Serverübersicht</h1>
                 <p className="text-lg text-gray-400 ">
                     Ein Überblick über den Status deiner aktiven Instanzen.
                 </p>
             </header>
 
             <main className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {/* Wir gehen die Liste der Server durch und erstellen für jeden eine Karte */}
                 {mockServers.map((server) => (
                     <ServerCard key={server.id} server={server} />
                 ))}
