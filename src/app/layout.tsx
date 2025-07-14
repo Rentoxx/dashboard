@@ -4,6 +4,7 @@ import "./globals.css";
 import {Providers} from "@/app/provider";
 import {Header} from "@/components/Header";
 import {Footer} from "@/components/Footer";
+import {InteractiveBackground} from "@/components/InteractiveBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,11 +33,14 @@ export default function RootLayout({
             className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen flex-col`}
         >
         <Providers>
+            <InteractiveBackground /> {/* NEU: Hintergrund-Komponente hier platzieren */}
             <Header />
-            <main className="flex-grow">{children}</main>
+            {/* Der z-10 stellt sicher, dass der Inhalt über dem Hintergrund liegt */}
+            <main className="flex-grow z-10">{children}</main>
             <Footer />
         </Providers>
         </body>
         </html>
     );
+
 }
