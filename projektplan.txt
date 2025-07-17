@@ -1,0 +1,122 @@
+Projektplan: Persönliches Dashboard (v2) - Aktualisierte Fassung
+
+Dieses Dokument dient als Roadmap für die Entwicklung der persönlichen Dashboard-Anwendung für tguentner.tech. Wir werden das Projekt in fünf logische Phasen unterteilen.
+
+Phase 1: Grundgerüst & Landing Page (Fokus: Frontend & Design)
+
+Status: Weitgehend abgeschlossen.
+
+In dieser ersten Phase haben wir das Fundament der Anwendung und die öffentliche Startseite geschaffen. Das Look-and-Feel wurde definiert und die grundlegenden Frontend-Technologien wurden eingerichtet.
+
+    Ziele (erreicht):
+
+        Projektinitialisierung: Ein neues Next.js-Projekt wurde aufgesetzt.
+
+        Styling-Integration: Tailwind CSS wurde für das Styling konfiguriert.
+
+        UI-Komponenten: shadcn/ui wurde initialisiert.
+
+        Design-Umsetzung: Die ursprüngliche Design-Philosophie wurde zu einem "Sharp & Structured"-Look weiterentwickelt:
+
+            Keine abgerundeten Ecken für einen professionelleren, technischen Look.
+
+            Ein globaler, animierter Gitter-Hintergrund, über dem die UI-Elemente zu schweben scheinen.
+
+            Einheitlicher Header und Footer auf allen Seiten.
+
+        Struktur: Eine klare Ordnerstruktur für Komponenten, Seiten, Modelle und Styles wurde angelegt.
+
+        Icon- & Animations-Einrichtung: lucide-react für Icons und framer-motion für UI-Animationen wurden integriert.
+
+    Ergebnis: Eine optisch ansprechende und interaktive Landing Page mit einem konsistenten Layout (Header, Footer, animierter Hintergrund), die bereit für die Anwendungslogik ist.
+
+Phase 2: Authentifizierung & Datenmodell
+
+Status: Weitgehend abgeschlossen.
+
+In dieser Phase haben wir den geschützten Bereich implementiert und das Fundament für die Datenhaltung gelegt.
+
+    Ziele (erreicht):
+
+        Auth-Integration: NextAuth.js (Auth.js v5) wurde integriert.
+
+        Datenbank-Entscheidung & Anbindung: Die Entscheidung fiel auf MongoDB Atlas. Eine stabile Verbindung wurde hergestellt und die Mongoose-Bibliothek zur Strukturierung der Daten integriert. Die Datenmodelle für Users, Servers und Modules wurden definiert.
+
+        Login-Provider: Ein Login mit GitHub wurde eingerichtet.
+
+        Login-Popup statt Seite: Statt einer separaten Login-Seite wurde ein eleganteres, nicht-intrusives Login-Popup mittels Dialog-Komponente implementiert.
+
+        Dashboard-Shell: Die Dashboard-Seite (/dashboard) wurde erstellt. Sie unterscheidet jetzt zwischen:
+
+            Demo-Modus (nicht eingeloggt): Zeigt statische Mock-Daten an.
+
+            Live-Modus (eingeloggt): Zeigt eine leere Ansicht mit einem "Server hinzufügen"-Button, bereit für die echten Benutzerdaten.
+
+    Ergebnis: Ein funktionierender und benutzerfreundlicher Login-Prozess. Die Anwendung kann Benutzer authentifizieren und ist bereit, benutzerspezifische Daten zu verwalten.
+
+Phase 3: Interaktives Dashboard & Detailansicht (UI-Umsetzung)
+
+Status: Weitgehend abgeschlossen.
+
+Wir haben das Herzstück der Anwendung – das Dashboard und die Detailansicht – mit voller Interaktivität im Frontend gebaut.
+
+    Ziele (erreicht):
+
+        CRUD-Funktionalität (Frontend): Ein Dialog zum Hinzufügen von Servern wurde implementiert. Die zugehörigen Backend-API-Routen (POST /api/servers, DELETE /api/servers/[serverid]) wurden erstellt, um Server und ihre Module in der Datenbank anzulegen und zu löschen.
+
+        Server-Detailseite: Eine voll funktionsfähige Detailseite wurde mit einer widget-basierten Struktur erstellt, inklusive:
+
+            MetricsChart: Ein interaktiver Graph mit Zeitraum-Auswahl und gestylten Tooltips.
+
+            Widgets: Karten für Live-Metriken, Server-Informationen, letzte Events und laufende Dienste.
+
+            Aktions-Widgets: Generische Aktionen (Start, Stop, Restart) und modul-spezifische Aktionen (z.B. für Tailscale).
+
+        UI-Polish & Quality-of-Life:
+
+            Elegante Entry-Animationen für alle Widgets.
+
+            Ein "Copy-to-Clipboard"-Button für die IP-Adresse.
+
+    Ergebnis: Ein Frontend, das sich wie eine fertige Anwendung anfühlt. Es ist interaktiv, optisch ansprechend und bereit für die Anbindung an die echten Live-Datenquellen.
+
+Phase 4: Architektur für Live-Metriken & Aktionen
+
+Status: Konzeption abgeschlossen, Umsetzung ausstehend.
+
+Dies ist der nächste große Schritt. Wir haben die Architektur für die Anbindung an die reale Server-Infrastruktur definiert.
+
+    Ziele:
+
+        Infrastruktur-Setup: Prometheus Node Exporter auf allen zu überwachenden Servern installieren. Eine zentrale Prometheus-Instanz auf dem Haupt-VPS via Docker Compose aufsetzen. Grafana wird hierbei als Admin- und Debugging-Tool für Prometheus verwendet, nicht als Datenquelle für das Frontend.
+
+        Zeitreihen-Daten-Architektur: Die MetricsChart-Komponente wird nicht mit Grafana, sondern direkt mit einer Next.js API-Route verbunden. Diese Route agiert als sicherer Proxy, der die Anfragen an die Prometheus-API weiterleitet, um die Graphendaten abzufragen.
+
+        Action-Agent-Architektur: Für Aktionen wie "Start", "Stop" oder "Backup" wird ein sicheres Muster implementiert:
+
+            Ein Klick im Frontend ruft eine Next.js API-Route auf.
+
+            Die Next.js-API sendet eine authentifizierte Anfrage über das private Tailscale-Netzwerk.
+
+            Ein kleiner "Agent" (ein simples Webserver-Skript) auf dem Ziel-VPS empfängt die Anfrage und führt den eigentlichen Shell-Befehl aus.
+
+    Ergebnis: Eine sichere, skalierbare und professionelle Backend-Architektur, die echte Live-Metriken und Server-Steuerung ermöglicht.
+
+Phase 5: Deployment & Feinschliff
+
+Status: Ausstehend.
+
+Die Anwendung wird produktiv geschaltet und für den Dauerbetrieb vorbereitet.
+
+    Ziele:
+
+        Produktions-Build: Die Next.js-Anwendung für die Produktion optimieren.
+
+        Deployment: Die gesamte Anwendung (Next.js, Prometheus, Agent) wird als Docker-Compose-Stack auf dem Haupt-VPS deployt.
+
+        Reverse Proxy: Ein Webserver wie Nginx oder Caddy wird als Reverse Proxy vorgeschaltet, um tguentner.tech auf den Next.js-Container zu leiten und SSL/HTTPS zu verwalten.
+
+        Umgebungsvariablen: Alle Keys und sensiblen Daten werden sicher als Umgebungsvariablen im Deployment-Prozess konfiguriert.
+
+    Ergebnis: Die fertige, voll funktionsfähige und sicher gehostete Dashboard-Anwendung ist unter tguentner.tech erreichbar.
+

@@ -10,6 +10,7 @@ export interface IServer extends Document {
     name: string;
     provider: string;
     panelUrl: string;
+    ipAddress: string; // <-- HINZUGEFÜGT
     owner: Schema.Types.ObjectId;
     modules: Schema.Types.ObjectId[];
     backup_config?: IBackupConfig;
@@ -19,6 +20,7 @@ const ServerSchema = new Schema<IServer>({
     name: { type: String, required: true },
     provider: { type: String, required: true },
     panelUrl: { type: String, required: true },
+    ipAddress: { type: String, required: true }, // <-- HINZUGEFÜGT
     owner: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     modules: [{ type: Schema.Types.ObjectId, ref: 'Module' }],
     backup_config: { type: Object }

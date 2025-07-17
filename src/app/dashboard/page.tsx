@@ -3,49 +3,74 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { ServerCard } from "@/components/dashboard/ServerCard";
-import { AddServerDialog, NewServerData } from "@/components/dashboard/AddServerDialog";
+import { AddServerDialog } from "@/components/dashboard/AddServerDialog";
 import { Loader2 } from "lucide-react";
-import type { Server } from "@/components/dashboard/ServerCard"; // Importiere den Server-Typ
+import type { Server } from "@/components/dashboard/ServerCard"; // Importiert den Server-Typ
 
-// Die Mock-Daten für den Demo-Modus
+// Die Mock-Daten für den Demo-Modus bleiben unverändert
 const mockServers: Server[] = [
     { id: "digital-ocean-nomi", name: "Nomi-Server", provider: "DigitalOcean", status: "Online", cpuUsage: 35, ramUsage: 60, diskUsage: 75, panelUrl: "https://cloud.digitalocean.com/login" },
     { id: "oracle-arm", name: "ARM-Instanz", provider: "Oracle Cloud", status: "Online", cpuUsage: 12, ramUsage: 25, diskUsage: 40, panelUrl: "https://www.oracle.com/cloud/sign-in.html" },
 ];
 
+type NewServerApiResponse = {
+    _id: string;
+    name: string;
+    provider: string;
+    panelUrl: string;
+    ipAddress: string;
+    owner: string;
+    modules: string[];
+};
+
 export default function DashboardOverviewPage() {
-    const { data: session, status } = useSession();
-    const [userServers, setUserServers] = useState<Server[]>([]); // State für die Server des eingeloggten Nutzers
+    const {status } = useSession();
+    const [userServers, setUserServers] = useState<Server[]>([]);
+    const [isLoading, setIsLoading] = useState(true); // Eigener Lade-State
 
-    // Sobald die Session geladen ist, könntest du hier die echten Server von der DB fetchen.
-    // Fürs Erste starten wir mit einer leeren Liste.
+    // Effekt zum Laden der Serverdaten, wenn der Benutzer authentifiziert ist
     useEffect(() => {
-        if (status === "authenticated") {
-            // HIER WÜRDE DER FETCH ZU DEINER API KOMMEN, z.B. GET /api/servers
-            // fetch('/api/servers').then(res => res.json()).then(data => setUserServers(data));
-        }
-    }, [status]);
+        const fetchServers = async () => {
+            if (status === "authenticated") {
+                setIsLoading(true);
+                try {
+                    const response = await fetch('/api/servers');
+                    if (!response.ok) {
+                        throw new Error('Fehler beim Laden der Server');
+                    }
+                    const data = await response.json();
+                    setUserServers(data);
+                } catch (error) {
+                    console.error(error);
+                    // Hier könntest du eine Fehlermeldung anzeigen
+                } finally {
+                    setIsLoading(false);
+                }
+            } else if (status === "unauthenticated") {
+                setIsLoading(false); // Nicht laden im Demo-Modus
+            }
+        };
 
-    const handleServerAdd = (newServerData: NewServerData) => {
-        const newServer: Server = {
-            // Im echten Leben würde die ID von der Datenbank kommen
-            id: `new-server-${Math.random()}`,
-            name: newServerData.name,
-            provider: newServerData.provider,
-            panelUrl: newServerData.panelUrl,
-            // Standardwerte für einen neuen Server
-            status: "Online",
+        fetchServers();
+    }, [status]); // Abhängig vom Session-Status
+
+    // KORREKTUR 1 (Anwendung): Der 'any'-Typ wird durch den spezifischen Typ ersetzt.
+    const handleServerAdd = (newServerFromApi: NewServerApiResponse) => {
+        const newServerForState: Server = {
+            id: newServerFromApi._id, // Echte ID aus der DB
+            name: newServerFromApi.name,
+            provider: newServerFromApi.provider,
+            panelUrl: newServerFromApi.panelUrl,
+            status: 'Online',
             cpuUsage: 0,
             ramUsage: 0,
             diskUsage: 5,
         };
-
-        // Fügt den neuen Server zum lokalen State hinzu (später würde das ein API-Call sein)
-        setUserServers(currentServers => [...currentServers, newServer]);
+        setUserServers(currentServers => [...currentServers, newServerForState]);
     };
 
-    // Lade-Zustand, während die Session geprüft wird
-    if (status === "loading") {
+    // Kombinierter Lade-Zustand für Session und Daten
+    if (status === "loading" || (status === "authenticated" && isLoading)) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <Loader2 className="h-16 w-16 animate-spin text-mint" />
@@ -67,6 +92,7 @@ export default function DashboardOverviewPage() {
                             : "Ein Überblick über den Status deiner aktiven Instanzen."}
                     </p>
                 </div>
+                {/* onServerAdd ist jetzt korrekt angebunden */}
                 {!isDemoMode && <AddServerDialog onServerAdd={handleServerAdd} />}
             </header>
 

@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PlusCircle } from "lucide-react";
 
-// KORREKTUR: Typ um die neuen, notwendigen Felder erweitert
+// Typdefinition für die Formulardaten
 export type NewServerData = {
     name: string;
     provider: string;
@@ -25,42 +25,51 @@ export type NewServerData = {
 };
 
 type AddServerDialogProps = {
-    onServerAdd: (data: NewServerData) => void;
+    onServerAdd: (data: any) => void; // Akzeptiert den vom Server zurückgegebenen Typ
 };
 
-
-
 export function AddServerDialog({ onServerAdd }: AddServerDialogProps) {
-    const [name, setName] = useState("");
-    const [provider, setProvider] = useState("");
-    const [panelUrl, setPanelUrl] = useState("");
-    const [ipAddress, setIpAddress] = useState("");
-    const [apiUrl, setApiUrl] = useState("");
+    // State für alle Formularfelder
+    const [formData, setFormData] = useState<NewServerData>({
+        name: "",
+        provider: "",
+        panelUrl: "",
+        ipAddress: "",
+        apiUrl: "",
+    });
     const [isOpen, setIsOpen] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
+    };
 
     const handleSubmit = async () => {
-        // API-Aufruf statt nur State-Änderung
+        setError(null); // Fehler zurücksetzen
         try {
             const response = await fetch('/api/servers', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name, provider, panelUrl, ipAddress, apiUrl }),
+                body: JSON.stringify(formData),
             });
-            if (!response.ok) throw new Error("Fehler beim Erstellen des Servers");
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Fehler beim Erstellen des Servers");
+            }
 
             const newServer = await response.json();
             onServerAdd(newServer); // Übergibt den neuen Server an die Dashboard-Seite
-        } catch (error) {
-            console.error(error);
-            // Hier könntest du eine Fehlermeldung anzeigen
+
+            // Formular zurücksetzen und Dialog schließen
+            setFormData({ name: "", provider: "", panelUrl: "", ipAddress: "", apiUrl: "" });
+            setIsOpen(false);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message); // Fehlermeldung im Dialog anzeigen
         }
-
-        // Reset form and close dialog
-        setName(""); setProvider(""); setPanelUrl(""); setIpAddress(""); setApiUrl("");
-        setIsOpen(false);
     };
-
-
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
@@ -78,27 +87,29 @@ export function AddServerDialog({ onServerAdd }: AddServerDialogProps) {
                     </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
+                    {/* Alle Input-Felder verwenden jetzt den zentralen State */}
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="name" className="text-right">Name</Label>
-                        <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3 bg-dark-background border-dark-subtle" />
+                        <Input id="name" value={formData.name} onChange={handleChange} className="col-span-3 bg-dark-background border-dark-subtle" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="provider" className="text-right">Provider</Label>
-                        <Input id="provider" value={provider} onChange={(e) => setProvider(e.target.value)} className="col-span-3 bg-dark-background border-dark-subtle" />
+                        <Input id="provider" value={formData.provider} onChange={handleChange} className="col-span-3 bg-dark-background border-dark-subtle" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="panelUrl" className="text-right">Panel URL</Label>
-                        <Input id="panelUrl" value={panelUrl} onChange={(e) => setPanelUrl(e.target.value)} className="col-span-3 bg-dark-background border-dark-subtle" />
+                        <Input id="panelUrl" value={formData.panelUrl} onChange={handleChange} className="col-span-3 bg-dark-background border-dark-subtle" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="ipAddress" className="text-right">IP Adresse</Label>
-                        <Input id="ipAddress" value={ipAddress} onChange={(e) => setIpAddress(e.target.value)} className="col-span-3 bg-dark-background border-dark-subtle" placeholder="z.B. 123.45.67.89" />
+                        <Input id="ipAddress" value={formData.ipAddress} onChange={handleChange} className="col-span-3 bg-dark-background border-dark-subtle" placeholder="z.B. 123.45.67.89" />
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                         <Label htmlFor="apiUrl" className="text-right">Metrik URL</Label>
-                        <Input id="apiUrl" value={apiUrl} onChange={(e) => setApiUrl(e.target.value)} className="col-span-3 bg-dark-background border-dark-subtle" placeholder="z.B. http://IP:9100/metrics" />
+                        <Input id="apiUrl" value={formData.apiUrl} onChange={handleChange} className="col-span-3 bg-dark-background border-dark-subtle" placeholder="z.B. http://IP:9100/metrics" />
                     </div>
                 </div>
+                {error && <p className="text-red-500 text-sm text-center">{error}</p>}
                 <DialogFooter>
                     <Button onClick={handleSubmit} className="bg-mint text-dark-background hover:bg-mint-dark">
                         Speichern

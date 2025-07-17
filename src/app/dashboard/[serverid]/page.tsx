@@ -1,66 +1,37 @@
-// src/app/dashboard/[serverid]/page.tsx
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth/next";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import dbConnect from "@/lib/dbConnect";
+import Server, { IServer } from "@/models/Server";
+import User from "@/models/User";
 import { ServerDetailClient } from "@/components/dashboard/ServerDetailClient";
+import { Types } from "mongoose";
 
-// --- Typen & Mock-Daten ---
+// KORREKTUR: Wir definieren den Modul-Typ hier genau so, wie ihn die Client-Komponente erwartet.
+type ModuleType = 'MINECRAFT_JAVA' | 'WEB_SERVER' | 'TAILSCALE' | 'ADGUARD_HOME' | 'GENERIC_METRICS';
 
-interface IBackupConfig {
-    targetPath: string;
-    driveFolderId: string;
-}
-
-interface IModule {
-    type: 'MINECRAFT_JAVA' | 'WEB_SERVER' | 'TAILSCALE' | 'ADGUARD_HOME' | 'GENERIC_METRICS';
-    cached_data?: { [key: string]: string | number | boolean | null };
-}
-
-type Server = {
-    id: string; name: string; provider: string; status: 'Online' | 'Offline';
-    cpuUsage: number; ramUsage: number; diskUsage: number; panelUrl: string;
-    backup_config?: IBackupConfig;
-    modules: IModule[];
+type PlainServer = {
+    id: string;
+    name: string;
+    provider: string;
+    status: 'Online' | 'Offline';
+    cpuUsage: number;
+    ramUsage: number;
+    diskUsage: number;
+    panelUrl: string;
+    backup_config?: {
+        targetPath: string;
+        driveFolderId: string;
+    };
+    modules: {
+        type: ModuleType; // <-- Verwenden des spezifischen Typs anstelle von 'string'
+        cached_data?: { [key: string]: string | number | boolean | null };
+    }[];
 };
 
 type MetricData = { time: string; usage: number; };
 
-// KORREKTUR: Mock-Server haben jetzt ein "modules"-Array
-const mockServers: Server[] = [
-    {
-        id: "digital-ocean-nomi",
-        name: "Nomi-Server",
-        provider: "DigitalOcean",
-        status: "Online", cpuUsage: 35, ramUsage: 60, diskUsage: 75,
-        panelUrl: "https://cloud.digitalocean.com/login",
-        backup_config: { targetPath: "/home/minecraft", driveFolderId: "123xyz" },
-        modules: [
-            { type: 'MINECRAFT_JAVA', cached_data: { tps: 20.0, players: 3 } },
-            { type: 'TAILSCALE', cached_data: { status: 'connected' } },
-            { type: 'WEB_SERVER' }
-        ]
-    },
-    {
-        id: "oracle-arm",
-        name: "ARM-Instanz",
-        provider: "Oracle Cloud",
-        status: "Online", cpuUsage: 12, ramUsage: 25, diskUsage: 40,
-        panelUrl: "https://www.oracle.com/cloud/sign-in.html",
-        modules: [
-            { type: 'TAILSCALE', cached_data: { status: 'connected' } },
-            { type: 'ADGUARD_HOME' }
-        ]
-    },
-    {
-        id: "oracle-vpn",
-        name: "VPN Gateway",
-        provider: "Oracle Cloud",
-        status: "Offline", cpuUsage: 0, ramUsage: 0, diskUsage: 10,
-        panelUrl: "https://www.oracle.com/cloud/sign-in.html",
-        modules: [
-            { type: 'TAILSCALE', cached_data: { status: 'disconnected' } }
-        ]
-    },
-];
-
+// Mock-Daten bleiben unverändert
 const MOCK_CPU_HISTORY: MetricData[] = [
     { time: '10:00', usage: 20 }, { time: '10:05', usage: 25 },
     { time: '10:10', usage: 22 }, { time: '10:15', usage: 30 },
@@ -68,22 +39,35 @@ const MOCK_CPU_HISTORY: MetricData[] = [
     { time: '10:30', usage: 40 }, { time: '10:35', usage: 38 },
 ];
 
-export async function generateStaticParams() {
-    return mockServers.map((server) => ({ serverid: server.id }));
-}
-
-async function getServerData(id: string): Promise<Server | undefined> {
-    await new Promise(resolve => setTimeout(resolve, 1));
-    return mockServers.find(s => s.id === id);
+async function getServerData(id: string): Promise<IServer | null> {
+    await dbConnect();
+    const session = await getServerSession(authOptions);
+    if (!session?.user?.email) return null;
+    if (!Types.ObjectId.isValid(id)) return null;
+    const currentUser = await User.findOne({ email: session.user.email });
+    if (!currentUser) return null;
+    const server = await Server.findById(id).populate('modules');
+    if (!server || server.owner.toString() !== currentUser._id.toString()) return null;
+    return server;
 }
 
 export default async function ServerDetailPage({ params }: { params: { serverid: string } }) {
-    const { serverid } = await params;
-    const server = await getServerData(serverid);
+    const { serverid } = params;
+    const serverDocument = await getServerData(serverid);
 
-    if (!server) {
+    if (!serverDocument) {
         notFound();
     }
 
-    return <ServerDetailClient server={server} cpuHistory={MOCK_CPU_HISTORY} />;
+    // Die Umwandlung bleibt dieselbe, aber das Ergebnis entspricht jetzt dem richtigen Typ.
+    const plainServer: PlainServer = JSON.parse(JSON.stringify({
+        ...serverDocument.toObject(),
+        id: serverDocument._id.toString(),
+        status: 'Online',
+        cpuUsage: 35,
+        ramUsage: 60,
+        diskUsage: 75,
+    }));
+
+    return <ServerDetailClient server={plainServer} cpuHistory={MOCK_CPU_HISTORY} />;
 }
