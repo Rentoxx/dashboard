@@ -1,21 +1,21 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth'; // Corrected import path
+import { authOptions } from '@/lib/auth';
 import User from '@/models/User';
 import Server from '@/models/Server';
 import Module from '@/models/Module';
 import { Types } from 'mongoose';
 import dbConnect from "@/lib/dbConnect";
 
-// Define a specific type for the route's context object
-type RouteContext = {
-    params: {
-        serverid: string;
-    }
-}
+// The function signature is adjusted here using `any` as a workaround
+export async function DELETE(
+    request: Request,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    context: any
+) {
+    // We still destructure params inside for clean code
+    const { serverid } = context.params;
 
-// Use the new type for the second argument
-export async function DELETE(request: Request, context: RouteContext) {
     try {
         await dbConnect();
     } catch (error) {
@@ -24,14 +24,11 @@ export async function DELETE(request: Request, context: RouteContext) {
     }
 
     const session = await getServerSession(authOptions);
-    // Destructure params from the context object inside the function
-    const { serverid } = context.params;
 
     if (!session?.user?.email) {
         return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
     }
 
-    // Prüfen, ob die Server-ID eine gültige MongoDB ObjectId ist
     if (!Types.ObjectId.isValid(serverid)) {
         return NextResponse.json({ error: 'Ungültige Server-ID' }, { status: 400 });
     }
@@ -47,21 +44,12 @@ export async function DELETE(request: Request, context: RouteContext) {
             return NextResponse.json({ error: 'Server nicht gefunden' }, { status: 404 });
         }
 
-        // Sicherheitscheck: Gehört dieser Server dem eingeloggten Benutzer?
         if (server.owner.toString() !== currentUser._id.toString()) {
             return NextResponse.json({ error: 'Keine Berechtigung zum Löschen dieses Servers' }, { status: 403 });
         }
 
-        // Transaktionale Logik (optional, aber empfohlen für Produktionsumgebungen)
-        // Hier in einer vereinfachten Form:
-
-        // 1. Alle zugehörigen Module löschen
         await Module.deleteMany({ server: server._id });
-
-        // 2. Den Server selbst löschen
         await Server.findByIdAndDelete(serverid);
-
-        // 3. Die Referenz aus dem Benutzerdokument entfernen
         await User.updateOne(
             { _id: currentUser._id },
             { $pull: { servers: new Types.ObjectId(serverid) } }

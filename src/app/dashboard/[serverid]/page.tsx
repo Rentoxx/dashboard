@@ -51,7 +51,8 @@ async function getServerData(id: string): Promise<IServer | null> {
     return server;
 }
 
-export default async function ServerDetailPage({ params }: { params: { serverid: string } }) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export default async function ServerDetailPage({ params }: any) {
     const { serverid } = params;
     const serverDocument = await getServerData(serverid);
 
@@ -59,7 +60,6 @@ export default async function ServerDetailPage({ params }: { params: { serverid:
         notFound();
     }
 
-    // Die Umwandlung bleibt dieselbe, aber das Ergebnis entspricht jetzt dem richtigen Typ.
     const plainServer: PlainServer = JSON.parse(JSON.stringify({
         ...serverDocument.toObject(),
         id: serverDocument._id.toString(),
