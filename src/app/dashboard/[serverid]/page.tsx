@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { authOptions } from '@/lib/auth'; // Updated import path
 import dbConnect from "@/lib/dbConnect";
 import Server, { IServer } from "@/models/Server";
 import User from "@/models/User";
