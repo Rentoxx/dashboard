@@ -1,13 +1,21 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth/next';
-import { authOptions } from '@/lib/auth'; // Updated import path
+import { authOptions } from '@/lib/auth'; // Corrected import path
 import User from '@/models/User';
 import Server from '@/models/Server';
 import Module from '@/models/Module';
 import { Types } from 'mongoose';
 import dbConnect from "@/lib/dbConnect";
 
-export async function DELETE(request: Request, { params }: { params: { serverid: string } }) {
+// Define a specific type for the route's context object
+type RouteContext = {
+    params: {
+        serverid: string;
+    }
+}
+
+// Use the new type for the second argument
+export async function DELETE(request: Request, context: RouteContext) {
     try {
         await dbConnect();
     } catch (error) {
@@ -15,10 +23,9 @@ export async function DELETE(request: Request, { params }: { params: { serverid:
         return NextResponse.json({ error: 'Datenbankverbindung fehlgeschlagen' }, { status: 500 });
     }
 
-
-
     const session = await getServerSession(authOptions);
-    const { serverid } = params;
+    // Destructure params from the context object inside the function
+    const { serverid } = context.params;
 
     if (!session?.user?.email) {
         return NextResponse.json({ error: 'Nicht autorisiert' }, { status: 401 });
