@@ -17,7 +17,7 @@ export default function LandingPage() {
             </h1>
             <p className="mt-6 max-w-2xl text-lg text-gray-300 md:text-xl">
               Eine persönliche Dashboard-Anwendung zum Verwalten und Überwachen meiner
-              selbst gehosteten Dienste – vom Game-Server bis zur Cloud-Infrastruktur.
+              selbst gehosteten Dienste – vom Game-Server bis zur Cloud-Infrastruktur. Test
             </p>
             <div className="mt-10 flex flex-col items-center gap-4 sm:flex-row">
               <Link
