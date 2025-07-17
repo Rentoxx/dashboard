@@ -60,9 +60,9 @@ export async function POST(request: Request) {
 
         return NextResponse.json(newServer, { status: 201 });
 
-    } catch (error: any) {
+    } catch (error: unknown) { // Correction is here
         console.error("Fehler beim Erstellen des Servers:", error);
-        if (error.name === 'ValidationError') {
+        if (error instanceof Error && error.name === 'ValidationError') {
             return NextResponse.json({ error: error.message }, { status: 400 });
         }
         return NextResponse.json({ error: 'Interner Serverfehler beim Erstellen des Servers' }, { status: 500 });

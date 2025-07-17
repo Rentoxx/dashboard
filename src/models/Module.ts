@@ -10,7 +10,7 @@ export interface IModule extends Document {
     server: Schema.Types.ObjectId;
     type: 'MINECRAFT_JAVA' | 'WEB_SERVER' | 'TAILSCALE' | 'ADGUARD_HOME' | 'GENERIC_METRICS';
     api_config?: IApiConfig;
-    cached_data?: Record<string, any>;
+    cached_data?: Record<string, string | number | boolean | null | undefined>;
     last_updated?: Date;
 }
 

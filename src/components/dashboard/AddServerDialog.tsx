@@ -24,8 +24,19 @@ export type NewServerData = {
     apiUrl: string; // z.B. die URL zum Prometheus Node Exporter
 };
 
+// More specific type for the server response
+export type NewServerApiResponse = {
+    _id: string;
+    name: string;
+    provider: string;
+    panelUrl: string;
+    ipAddress: string;
+    owner: string;
+    modules: string[];
+};
+
 type AddServerDialogProps = {
-    onServerAdd: (data: any) => void; // Akzeptiert den vom Server zurückgegebenen Typ
+    onServerAdd: (data: NewServerApiResponse) => void; // Akzeptiert den vom Server zurückgegebenen Typ
 };
 
 export function AddServerDialog({ onServerAdd }: AddServerDialogProps) {
@@ -65,9 +76,13 @@ export function AddServerDialog({ onServerAdd }: AddServerDialogProps) {
             // Formular zurücksetzen und Dialog schließen
             setFormData({ name: "", provider: "", panelUrl: "", ipAddress: "", apiUrl: "" });
             setIsOpen(false);
-        } catch (err: any) {
+        } catch (err: unknown) { // Correction is here
             console.error(err);
-            setError(err.message); // Fehlermeldung im Dialog anzeigen
+            if (err instanceof Error) {
+                setError(err.message); // Fehlermeldung im Dialog anzeigen
+            } else {
+                setError("An unknown error occurred");
+            }
         }
     };
 
