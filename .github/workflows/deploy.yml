@@ -2,7 +2,7 @@ name: Deploy to VPS
 
 on:
   push:
-    branches: [ main ] # Löst bei jedem Push auf den 'main'-Branch aus
+    branches: [ master ] # Löst bei jedem Push auf den 'master'-Branch aus
 
 jobs:
   deploy:
