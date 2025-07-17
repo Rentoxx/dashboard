@@ -16,7 +16,12 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/ubuntu/WebDashboard/dashboard
+            # Lade NVM explizit, damit npm und pm2 gefunden werden
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          
+            # Führe die eigentlichen Deploy-Befehle aus
+            cd /pfad/zu/deinem/projekt
             git pull origin main
             npm install --omit=dev
             npm run build
